@@ -1,8 +1,30 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { useState } from 'react';
 import Navbar from "../components/Navbar"
 
 export default function Home() {
+
+
+
+  const [currencyState, setCurrencyState] = useState(true);
+  const [currencyStateValue, setCurrencyStateValue] = useState("ETH")
+
+  function changeCurrency() {
+    if (currencyState) {
+      setCurrencyStateValue("VAR")
+      setCurrencyState(false)
+    }
+    else {
+      setCurrencyStateValue("ETH")
+      setCurrencyState(true)
+
+    }
+  }
+
+
+
+
   return (
     <div>
       <div>
@@ -26,11 +48,23 @@ export default function Home() {
                     placeholder="0.0"
                   />
                   <div className={style.currencySelector}>
-                    <div className={style.currencySelectorContent}>
-                      <div className={style.currencySelectorIcon}>
-                        <Image src="/eth.png" alt="eth logo" height={20} width={20} />
+                    <div onClick={changeCurrency}>
+                      <div className={style.currencySelectorContent}>
+                        <div className={style.currencySelectorIcon}>
+                          {currencyState ? (
+                            <div>
+                              <Image src="/eth.png" alt="eth logo" height={20} width={20} />
+                            </div>
+                          ) : (
+                            <div>
+                              <Image src="/token.png" alt="varma coin" height={20} width={20} />
+                            </div>
+                          )}
+
+
+                          <div className={style.currencySelectorTicker}>{currencyStateValue}</div>
+                        </div>
                       </div>
-                      <div className={style.currencySelectorTicker}>ETH</div>
                     </div>
                   </div>
                 </div>
@@ -46,9 +80,17 @@ export default function Home() {
                   <div className={style.currencySelector}>
                     <div className={style.currencySelectorContent}>
                       <div className={style.currencySelectorIcon}>
-                        <Image src="/eth.png" alt="eth logo" height={20} width={20} />
+                        {currencyState ? (
+                          <div>
+                            <Image src="/token.png" alt="varma coin" height={20} width={20} />
+                          </div>
+                        ) : (
+                          <div>
+                            <Image src="/eth.png" alt="eth logo" height={20} width={20} />
+                          </div>
+                        )}
                       </div>
-                      <div className={style.currencySelectorTicker}>ETH</div>
+                      <div className={style.currencySelectorTicker}>{currencyState ? (<>VAR</>) : (<>Eth</>)}</div>
                     </div>
                   </div>
                 </div>
@@ -88,3 +130,4 @@ const style = {
   currencySelectorArrow: `text-lg`,
   confirmButton: `bg-[#2172E5] my-2 rounded-2xl py-6 px-8 text-xl font-semibold flex items-center justify-center cursor-pointer border border-[#2172E5] hover:border-[#234169]`,
 };
+
