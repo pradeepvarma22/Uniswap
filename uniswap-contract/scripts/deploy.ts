@@ -1,18 +1,33 @@
 import { ethers } from "hardhat";
+import { BigNumber } from "ethers";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  const _amount = ethers.utils.parseEther("0.0000001");
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  // Token Contract
+  const contractFact = await ethers.getContractFactory("VarmaToken");
+  const tokenContract = await contractFact.deploy();
+  await tokenContract.deployed();
+  const tokenContractAddress = tokenContract.address;
 
-  await lock.deployed();
+  // Exchange
+  const exchangeFact = await ethers.getContractFactory("Exchange");
+  const exchangeContract = await exchangeFact.deploy(tokenContractAddress);
+  await exchangeContract.deployed();
+  const exchangeContractAddress = exchangeContract.address;
 
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+  // Approve
+  const aprovetxn = await tokenContract.approve(exchangeContractAddress,BigNumber.from("100") )
+  await aprovetxn.wait();
+
+  // Adding Liquidity for the first time   1:10
+  const txn = await exchangeContract.addLiquidity(BigNumber.from("10"), {value: ethers.utils.parseEther("1")});
+  await txn.wait();
+
+  console.log("Varma Token Contract Address: ",tokenContractAddress);
+  console.log("Uniswap Token Contract Address: ",exchangeContractAddress )
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
