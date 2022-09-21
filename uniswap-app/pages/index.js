@@ -18,7 +18,10 @@ export default function Home() {
   const [exchangeValue, setExchangeValue] = useState(0);
 
 
-  
+
+  const [eth, setEth] = useState();
+  const [token, setToken] = useState();
+
 
   function changeCurrency() {
 
@@ -27,10 +30,10 @@ export default function Home() {
       setExchangeValue(0)
       setCurrencyState(false)
 
-      
+
       document.getElementById("input1").value = document.getElementById("input1").defaultValue;
 
-      
+
     }
     else {
       setCurrencyStateValue("ETH")
@@ -39,7 +42,7 @@ export default function Home() {
 
       document.getElementById("input1").value = document.getElementById("input1").defaultValue;
 
-      
+
     }
   }
 
@@ -133,11 +136,53 @@ export default function Home() {
   )
 
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
 
     if (!isActive) {
+      document.getElementById("input1").value = document.getElementById("input1").defaultValue;
+
       alert('Please Connect to wallet');
       return;
+    }
+
+    console.log('01');
+
+    try {
+      const contract = new ethers.Contract(EXCHANGE_CONTRACT_ADDRESS, EXCHANGE_CONTRACT_ABI, signer);
+      console.log('1');
+
+      let swap_;
+      
+      const _ethValue =eth;
+      console.log('1.1');
+      const _token = ethers.utils.parseUnits(token.toString());
+      console.log('2');
+      if (currencyStateValue == "ETH") {  
+        console.log(_token);
+        swap_ = await contract.ethToVarmaToken(_token, { value: _ethValue })
+      }
+      else {
+        console.log(_token);
+        console.log(_ethValue);
+        console.log('3');
+        swap_ = await contract.varmaTokenToEth(_token, ethers.utils.parseEther(_ethValue))
+      }
+
+      await swap_.wait();
+      alert('swap success')
+
+    } catch (error) {
+
+      console.error(error);
+      let msg;
+      try {
+       msg = error
+
+      } catch (error) {
+        
+      }
+
+      alert(`swap failed due to-> ${msg} `,)
     }
 
   }
@@ -145,9 +190,17 @@ export default function Home() {
   async function getExchangeValue(e) {
 
     if (!isActive) {
+      document.getElementById("input1").value = document.getElementById("input1").defaultValue;
       alert('Please Connect to wallet');
       return;
     }
+
+    if(!Boolean(e.target.value))
+    {
+      setExchangeValue(0)
+      return;
+    }
+    
 
     const contract = new ethers.Contract(EXCHANGE_CONTRACT_ADDRESS, EXCHANGE_CONTRACT_ABI, provider);
 
@@ -156,23 +209,25 @@ export default function Home() {
     const tokenReserveBigNumber = await contract.getReserve();
     const tokenReserve = ethers.utils.formatEther(tokenReserveBigNumber);
     let getExchangeValueBigNumber;
+    const _inputBigStr = e.target.value;
     const _inputBig = ethers.utils.parseUnits(e.target.value, 18);
 
     if (currencyStateValue == "ETH") {
-      getExchangeValueBigNumber = await contract.getAmountOfTokens(_inputBig,ethReserveBigNumber,tokenReserveBigNumber)
-      console.log('ETH');
+      getExchangeValueBigNumber = await contract.getAmountOfTokens(_inputBig, ethReserveBigNumber, tokenReserveBigNumber)
+      setEth(_inputBig);
+      const dummy_ = ethers.utils.formatEther(getExchangeValueBigNumber);
+      setToken(dummy_);
     }
     else {
-      getExchangeValueBigNumber = await contract.getAmountOfTokens(_inputBig,tokenReserveBigNumber,ethReserveBigNumber)
-      console.log('VAR');
-
+      getExchangeValueBigNumber = await contract.getAmountOfTokens(_inputBig, tokenReserveBigNumber, ethReserveBigNumber)
+      setToken(_inputBig);
+      const dummy2 = ethers.utils.formatEther(getExchangeValueBigNumber);
+      setEth(dummy2);
     }
 
     const getExchangeValue_ = ethers.utils.formatEther(getExchangeValueBigNumber);
     setExchangeValue(getExchangeValue_);
   }
-
-
 
 
 
