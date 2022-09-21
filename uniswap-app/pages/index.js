@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import Navbar from "../components/Navbar"
 import { EXCHANGE_CONTRACT_ABI, EXCHANGE_CONTRACT_ADDRESS } from "../constant/Exchange/index"
+import {TOKEN_CONTRACT_ADDRESS,VARMA_TOKEN_ABI} from "../constant/Token/index"
 
 export default function Home() {
 
@@ -145,27 +146,29 @@ export default function Home() {
       return;
     }
 
-    console.log('01');
-
     try {
       const contract = new ethers.Contract(EXCHANGE_CONTRACT_ADDRESS, EXCHANGE_CONTRACT_ABI, signer);
-      console.log('1');
 
       let swap_;
       
       const _ethValue =eth;
-      console.log('1.1');
       const _token = ethers.utils.parseUnits(token.toString());
-      console.log('2');
       if (currencyStateValue == "ETH") {  
-        console.log(_token);
         swap_ = await contract.ethToVarmaToken(_token, { value: _ethValue })
       }
       else {
-        console.log(_token);
-        console.log(_ethValue);
-        console.log('3');
+
+        
+        // Approve
+        const tokenContract = new ethers.Contract(TOKEN_CONTRACT_ADDRESS,VARMA_TOKEN_ABI,signer);
+        const _walletAddress = await signer.getAddress()
+        
+
+        const txn  = await tokenContract.approve(EXCHANGE_CONTRACT_ADDRESS, ethers.utils.parseUnits(token,18));
+        await txn.wait();
+        // transferFrom
         swap_ = await contract.varmaTokenToEth(_token, ethers.utils.parseEther(_ethValue))
+        await swap_.wait();
       }
 
       await swap_.wait();
@@ -220,7 +223,7 @@ export default function Home() {
     }
     else {
       getExchangeValueBigNumber = await contract.getAmountOfTokens(_inputBig, tokenReserveBigNumber, ethReserveBigNumber)
-      setToken(_inputBig);
+      setToken(_inputBigStr);
       const dummy2 = ethers.utils.formatEther(getExchangeValueBigNumber);
       setEth(dummy2);
     }
