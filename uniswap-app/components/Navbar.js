@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import { ethers } from 'ethers';
+import Image from 'next/image'
 import { useState } from 'react';
 
 export default function Navbar({ isActive, setIsActive, provider, setProvider, signer, setSigner }) {
@@ -47,7 +47,10 @@ export default function Navbar({ isActive, setIsActive, provider, setProvider, s
                             ) : (
                                 <ul>
                                     <li>
-                                        <button onClick={login}>Connect wallet</button>
+                                        <button onClick={login}>
+                                            <Image src="/metamask-icon.svg" alt="Metamask Wallet Logo" height={15} width={30} />
+                                            Connect Wallet
+                                        </button>
                                     </li>
                                 </ul>
                             )}
