@@ -18,16 +18,18 @@ async function main() {
   const exchangeContractAddress = exchangeContract.address;
 
   // Approve
-  const aprovetxn = await tokenContract.approve(exchangeContractAddress,BigNumber.from("100") )
+  const aprovetxn = await tokenContract.approve(exchangeContractAddress,ethers.utils.parseUnits("2", 18) )
   await aprovetxn.wait();
 
   // Adding Liquidity for the first time   1:10
-  const txn = await exchangeContract.addLiquidity(BigNumber.from("10"), {value: ethers.utils.parseEther("1")});
+  const txn = await exchangeContract.addLiquidity(ethers.utils.parseUnits("2", 18), {value: ethers.utils.parseEther("2")});
   await txn.wait();
-
+  
+  //const getExchangeValueBigNumber = await exchangeContract.getReserve();
+  //const getExchangeValue = ethers.utils.formatEther(getExchangeValueBigNumber);
   console.log("Varma Token Contract Address: ",tokenContractAddress);
   console.log("Uniswap Token Contract Address: ",exchangeContractAddress )
-
+  //console.log("Tokens-> ", getExchangeValue)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

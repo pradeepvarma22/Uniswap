@@ -1,24 +1,45 @@
+import { ethers } from 'ethers';
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState } from 'react';
+
 import Navbar from "../components/Navbar"
+import { EXCHANGE_CONTRACT_ABI, EXCHANGE_CONTRACT_ADDRESS } from "../constant/Exchange/index"
 
 export default function Home() {
-
-
 
   const [currencyState, setCurrencyState] = useState(true);
   const [currencyStateValue, setCurrencyStateValue] = useState("ETH")
 
+  const [isActive, setIsActive] = useState(false);
+  const [provider, setProvider] = useState({});
+  const [signer, setSigner] = useState({});
+
+  const [exchangeValue, setExchangeValue] = useState(0);
+
+
+  
+
   function changeCurrency() {
+
     if (currencyState) {
       setCurrencyStateValue("VAR")
+      setExchangeValue(0)
       setCurrencyState(false)
+
+      
+      document.getElementById("input1").value = document.getElementById("input1").defaultValue;
+
+      
     }
     else {
       setCurrencyStateValue("ETH")
       setCurrencyState(true)
+      setExchangeValue(0)
 
+      document.getElementById("input1").value = document.getElementById("input1").defaultValue;
+
+      
     }
   }
 
@@ -27,25 +48,25 @@ export default function Home() {
 
   return (
     <div>
-      <div>
-        <Navbar />
-      </div>
 
+      <Navbar isActive={isActive} setIsActive={setIsActive} provider={provider} setProvider={setProvider} signer={signer} setSigner={setSigner} />
 
       <div>
-        <div className="" style={{ paddingTop: '150px', boxSizing: 'content-box', }}>
+        <div style={{ paddingTop: '150px', boxSizing: 'content-box', }}>
           <div className={style.wrapper}>
             <div className={style.content}>
               <div className={style.formHeader}>
-                <div>Swap</div>
+                <div>  </div>
               </div>
-              <div clasName="container">
+              <div>
 
                 <div className={style.transferPropContainer}>
                   <input
+                    id="input1"
                     type="text"
                     className={style.transferPropInput}
                     placeholder="0.0"
+                    onChange={getExchangeValue}
                   />
                   <div className={style.currencySelector}>
                     <div onClick={changeCurrency}>
@@ -61,7 +82,6 @@ export default function Home() {
                             </div>
                           )}
 
-
                           <div className={style.currencySelectorTicker}>{currencyStateValue}</div>
                         </div>
                       </div>
@@ -70,12 +90,13 @@ export default function Home() {
                 </div>
 
 
-
                 <div className={style.transferPropContainer}>
                   <input
                     type="text"
                     className={style.transferPropInput}
                     placeholder="0.0"
+                    value={exchangeValue}
+                    readOnly={true}
                   />
                   <div className={style.currencySelector}>
                     <div className={style.currencySelectorContent}>
@@ -97,7 +118,7 @@ export default function Home() {
 
 
                 <div onClick={(e) => handleSubmit(e)} className={style.confirmButton}>
-                  Confirm
+                  Swap
                 </div>
               </div>
             </div>
@@ -110,6 +131,51 @@ export default function Home() {
     </div>
 
   )
+
+
+  function handleSubmit(e) {
+
+    if (!isActive) {
+      alert('Please Connect to wallet');
+      return;
+    }
+
+  }
+
+  async function getExchangeValue(e) {
+
+    if (!isActive) {
+      alert('Please Connect to wallet');
+      return;
+    }
+
+    const contract = new ethers.Contract(EXCHANGE_CONTRACT_ADDRESS, EXCHANGE_CONTRACT_ABI, provider);
+
+    const ethReserveBigNumber = await provider.getBalance(EXCHANGE_CONTRACT_ADDRESS);
+    const ethReserve = ethers.utils.formatEther(ethReserveBigNumber);
+    const tokenReserveBigNumber = await contract.getReserve();
+    const tokenReserve = ethers.utils.formatEther(tokenReserveBigNumber);
+    let getExchangeValueBigNumber;
+    const _inputBig = ethers.utils.parseUnits(e.target.value, 18);
+
+    if (currencyStateValue == "ETH") {
+      getExchangeValueBigNumber = await contract.getAmountOfTokens(_inputBig,ethReserveBigNumber,tokenReserveBigNumber)
+      console.log('ETH');
+    }
+    else {
+      getExchangeValueBigNumber = await contract.getAmountOfTokens(_inputBig,tokenReserveBigNumber,ethReserveBigNumber)
+      console.log('VAR');
+
+    }
+
+    const getExchangeValue_ = ethers.utils.formatEther(getExchangeValueBigNumber);
+    setExchangeValue(getExchangeValue_);
+  }
+
+
+
+
+
 }
 
 
