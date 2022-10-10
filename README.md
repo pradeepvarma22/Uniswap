@@ -5,7 +5,11 @@ An instant cryptocurrency exchange powered by the Ethereum Blockchain. Exchange 
 
 ### Working
 
-<video src="./assets/uniswap.mp4" controls> G  </video>
+
+
+https://user-images.githubusercontent.com/28341697/194847743-942bcd03-95e5-49bf-b832-abcbe6882226.mp4
+
+
 <br/>
 <img src="./assets/1.png" />
 <br/>
