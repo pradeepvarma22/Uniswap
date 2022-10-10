@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import Navbar from "../components/Navbar"
 import { EXCHANGE_CONTRACT_ABI, EXCHANGE_CONTRACT_ADDRESS } from "../constant/Exchange/index"
-import {TOKEN_CONTRACT_ADDRESS,VARMA_TOKEN_ABI} from "../constant/Token/index"
+import { TOKEN_CONTRACT_ADDRESS, VARMA_TOKEN_ABI } from "../constant/Token/index"
 
 export default function Home() {
 
@@ -203,13 +203,12 @@ export default function Home() {
       setExchangeValue(0)
       return;
     }
-    
-
     const contract = new ethers.Contract(EXCHANGE_CONTRACT_ADDRESS, EXCHANGE_CONTRACT_ABI, provider);
 
     const ethReserveBigNumber = await provider.getBalance(EXCHANGE_CONTRACT_ADDRESS);
     const ethReserve = ethers.utils.formatEther(ethReserveBigNumber);
-    const tokenReserveBigNumber = await contract.getReserve();
+    let tokenReserveBigNumber;
+    tokenReserveBigNumber = await contract.getReserve();
     const tokenReserve = ethers.utils.formatEther(tokenReserveBigNumber);
     let getExchangeValueBigNumber;
     const _inputBigStr = e.target.value;

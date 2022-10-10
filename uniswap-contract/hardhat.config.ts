@@ -1,5 +1,5 @@
 import { HardhatUserConfig } from "hardhat/config";
-
+import "@nomiclabs/hardhat-etherscan"
 import "@nomicfoundation/hardhat-toolbox";
 import "dotenv/config";
 
@@ -7,6 +7,9 @@ const ALCHEMY_API_KEY_URL: string = process.env.ALCHEMY_API_KEY_URL!;     // MUM
 const METAMASK_PRIVATE_KEY: string = process.env.METAMASK_PRIVATE_KEY!;
 
 const config: HardhatUserConfig = {
+  etherscan: {
+    apiKey: process.env.ETHER_SCAN_API_KEY!
+  },
   networks: {
     mumbai: {
       url: ALCHEMY_API_KEY_URL,
